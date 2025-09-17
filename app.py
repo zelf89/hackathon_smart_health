@@ -12,9 +12,6 @@ app = Flask(__name__)
 # Access the variables using os.environ or os.getenv()
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 
-# Now you can use app.config['SECRET_KEY'] and db_url in your application
-print(f"Secret Key: {app.config['SECRET_KEY']}")
-
 app.secret_key = app.config['SECRET_KEY']  # Needed for session management
 
 
