@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+
+<div class="container mx-auto p-8">
+    <!-- Header Section -->
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-4xl font-bold text-teal-600">Welcome, {{ session['name'] }}</h1>
+        <a href="{{ url_for('logout') }}" class="text-red-500 font-semibold">Logout</a>
+    </div>
+
+    <!-- Appointments Section -->
+    <h2 class="text-3xl font-semibold text-teal-600 mb-6">Appointments</h2>
+    {% if appointments %}
+    <table class="min-w-full bg-white shadow-lg rounded-lg overflow-hidden mb-8">
+        <thead class="bg-teal-500 text-white">
+            <tr>
+                <th class="px-6 py-4 text-left">Patient Name</th>
+                <th class="px-6 py-4 text-left">Patient Bru-HIMS</th>
+                <th class="px-6 py-4 text-left">Patient IC</th>
+                <th class="px-6 py-4 text-left">Appointment Date</th>
+                <th class="px-6 py-4 text-left">Appointment Time</th>
+                <th class="px-6 py-4 text-left">Status</th>
+                <th class="px-6 py-4 text-left">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for appt in appointments %}
+            <tr class="border-b text-center">
+                <td class="px-6 py-4">{{ appt[1] }}</td>
+                <td class="px-6 py-4">{{ appt[2] }}</td>
+                <td class="px-6 py-4">{{ appt[3] }}</td>
+                <td class="px-6 py-4">{{ appt[4] }}</td>
+                <td class="px-6 py-4">{{ appt[5] }}</td>
+                <td class="px-6 py-4">
+                    {% if appt[6] == 'Approved' %}
+                        <span class="text-green-500 font-semibold">Approved</span>
+                    {% elif appt[6] == 'Rejected' %}
+                        <span class="text-red-500 font-semibold">Rejected</span>
+                    {% elif appt[6] == 'Completed' %}
+                        <span class="text-blue-500 font-semibold">Completed</span>
+                    {% else %}
+                        <span class="text-yellow-500 font-semibold">Pending</span>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4">
+                    <!-- Action Buttons -->
+                    <form method="POST" class="flex justify-center gap-2">
+                        <input type="hidden" name="appointment_id" value="{{ appt[0] }}">
+
+                        {% if appt[6] == 'Pending' %}
+                            <button type="submit" name="action" value="approve" class="px-4 py-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600">Approve</button>
+                            <button type="submit" name="action" value="reject" class="px-4 py-2 bg-red-500 text-white rounded-lg shadow-md hover:bg-red-600">Reject</button>
+                        {% elif appt[6] == 'Approved' %}
+                            <button type="submit" name="action" value="pending" class="px-4 py-2 bg-yellow-500 text-white rounded-lg shadow-md hover:bg-yellow-600">Set to Pending</button>
+                            <button type="submit" name="action" value="complete" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600">Complete</button>
+                        {% elif appt[6] == 'Rejected' %}
+                            <button type="submit" name="action" value="pending" class="px-4 py-2 bg-yellow-500 text-white rounded-lg shadow-md hover:bg-yellow-600">Set to Pending</button>
+                        {% elif appt[6] == 'Completed' %}
+                            <button type="submit" name="action" value="pending" class="px-4 py-2 bg-yellow-500 text-white rounded-lg shadow-md hover:bg-yellow-600">Set to Pending</button>
+                        {% endif %}
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p class="text-gray-600">No appointments yet.</p>
+    {% endif %}
+
+    <!-- Search Bar Section -->
+    <div class="mb-8 mt-8">
+        <form method="POST" action="{{ url_for('doctor_dashboard') }}" class="flex gap-4">
+            <input type="text" name="search_query" placeholder="Search patient medication by Bru-HIMS or IC" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 shadow-md">
+            <button type="submit" class="px-6 py-3 bg-teal-500 text-white rounded-lg shadow-md hover:bg-teal-600">Search</button>
+        </form>
+    </div>
+
+    <!-- Medication Results Section -->
+    {% if medications is defined and medications %}
+        <h2 class="text-3xl font-semibold text-teal-600 mb-6">Medication Records</h2>
+        <p class="text-xl font-bold text-teal-500 mb-4">Patient: {{ medications[0][0] }}</p>
+
+        <table class="min-w-full bg-white shadow-lg rounded-lg overflow-hidden mb-8">
+            <thead class="bg-teal-500 text-white">
+                <tr>
+                    <th class="px-6 py-4 text-left">Medication</th>
+                    <th class="px-6 py-4 text-left">Dosage</th>
+                    <th class="px-6 py-4 text-left">Frequency</th>
+                    <th class="px-6 py-4 text-left">Medication Intake Times</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for med in medications %}
+                <tr class="text-center border-b">
+                    <td class="px-6 py-4">{{ med[3] }}</td>
+                    <td class="px-6 py-4">{{ med[4] }}</td>
+                    <td class="px-6 py-4">{{ med[5] }}</td>
+                    <td class="px-6 py-4 text-left">
+                        <ul class="list-none pl-0">
+                            {% for t in med[6] %}
+                                {% set time_parts = t.split(':') %}
+                                {% set hour = time_parts[0]|int %}
+                                {% set minute = time_parts[1] %}
+                                {% if hour > 12 %}
+                                    {% set formatted_time = (hour - 12) ~ ':' ~ minute ~ ' PM' %}
+                                {% elif hour == 12 %}
+                                    {% set formatted_time = hour ~ ':' ~ minute ~ ' PM' %}
+                                {% else %}
+                                    {% set formatted_time = hour ~ ':' ~ minute ~ ' AM' %}
+                                {% endif %}
+                                <li class="text-center">{{ formatted_time }}</li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% elif medications is defined %}
+        <p class="text-red-500 font-semibold mb-8">No medications found for this patient.</p>
+    {% endif %}
+</div>
+
+</body>
+</html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>smartSehat - Your Healthcare Companion</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+    theme: {
+        extend: {
+            colors: {
+                background: '#ffffff',
+                foreground: '#2d3748',
+                primary: '#4DB6AC',
+                'primary-foreground': '#ffffff',
+                secondary: '#E8F5E9',
+                'secondary-foreground': '#00796B',
+                muted: '#f7fafc',
+                'muted-foreground': '#718096',
+                accent: '#B2DFDB',
+                'accent-foreground': '#00796B',
+                destructive: '#e53e3e',
+                'destructive-foreground': '#ffffff',
+                border: 'rgba(0, 0, 0, 0.15)',
+                input: 'transparent',
+                'input-background': '#f7fafc',
+                'switch-background': '#cbd5e0',
+                ring: '#4DB6AC',
+            },
+            borderRadius: {
+                DEFAULT: '0.75rem',
+                sm: 'calc(0.75rem - 4px)',
+                md: 'calc(0.75rem - 2px)',
+                lg: '0.75rem',
+                xl: 'calc(0.75rem + 4px)',
+            },
+            fontSize: {
+                base: '18px',
+            }
+        }
+    }
+}
+</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+body { font-family: 'Inter', sans-serif; font-size: 18px; }
+h1 { font-size: 1.5rem; font-weight: 600; line-height: 1.5; }
+h2 { font-size: 1.25rem; font-weight: 600; line-height: 1.5; }
+h3 { font-size: 1.125rem; font-weight: 600; line-height: 1.5; }
+h4 { font-size: 1rem; font-weight: 600; line-height: 1.5; }
+p { font-size: 1rem; font-weight: 400; line-height: 1.5; }
+label { font-size: 1rem; font-weight: 600; line-height: 1.5; }
+button { font-size: 1rem; font-weight: 600; line-height: 1.5; }
+input { font-size: 1rem; font-weight: 400; line-height: 1.5; }
+.animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+.animate-bounce { animation: bounce 1s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateY(-25%); animation-timing-function: cubic-bezier(0.8,0,1,1); } 50% { transform: none; animation-timing-function: cubic-bezier(0,0,0.2,1); } }
+</style>
+</head>
+<body class="bg-white text-foreground">
+
+<!-- Welcome Page -->
+<div id="welcome-page" class="min-h-screen">
+    <header class="w-full px-8 py-6 flex items-center justify-between">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-gradient-to-br from-primary to-[#00796B] rounded-2xl flex items-center justify-center shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h1 class="text-2xl font-bold text-[#00796B]">smartSehat</h1>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1">
+        <div class="container mx-auto px-8 py-16">
+            <div class="grid lg:grid-cols-2 gap-16 items-center min-h-[80vh]">
+                <div class="space-y-8">
+                    <div>
+                        <p class="text-muted-foreground mb-4">Your smart healthcare companion</p>
+                        <h2 class="text-4xl lg:text-5xl font-bold text-foreground mb-6 leading-tight">Healthcare made simple</h2>
+                        <p class="text-xl text-muted-foreground leading-relaxed mb-8">Chat with our AI assistant for appointments, medication reminders, and health guidance</p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-4 max-w-lg">
+                        <button id="login-patient-btn" class="h-14 px-8 bg-primary hover:bg-[#00796B] text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 flex-1">Sign In as Patient</button>
+                        <button id="login-doctor-btn" class="h-14 px-8 bg-primary hover:bg-[#00796B] text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 flex-1">Sign In as Doctor</button>
+                    </div>
+                    <div class="pt-8">
+                        <a href="#" class="text-muted-foreground hover:text-primary underline transition-colors duration-200">Healthcare provider? Learn more</a>
+                    </div>
+                </div>
+
+                <div class="flex justify-center lg:justify-end">
+                    <div class="relative">
+                        <div class="absolute inset-0 bg-gradient-to-br from-secondary/30 to-accent/30 rounded-3xl transform rotate-6"></div>
+                        <div class="absolute inset-0 bg-gradient-to-br from-accent/20 to-secondary/20 rounded-3xl transform -rotate-3"></div>
+                        <div class="relative bg-white rounded-3xl shadow-2xl p-12 max-w-md">
+                            <div class="relative mb-8 flex justify-center">
+                                <div class="relative">
+                                    <div class="w-40 h-40 bg-gradient-to-br from-secondary to-accent rounded-full flex items-center justify-center shadow-xl">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-20 h-20 text-primary" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="absolute -top-3 -right-3 w-16 h-16 bg-primary rounded-full flex items-center justify-center shadow-lg">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="absolute -bottom-4 -left-4 w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-xl border-4 border-secondary">
+                                        <div class="text-3xl">👋</div>
+                                    </div>
+                                    <div class="absolute top-8 left-12 w-10 h-10 bg-accent rounded-full flex items-center justify-center shadow-md animate-pulse">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-secondary-foreground" viewBox="0 0 24 24" fill="currentColor">
+                                            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+                                        </svg>
+                                    </div>
+                                    <div class="absolute bottom-8 right-16 w-8 h-8 bg-secondary rounded-full flex items-center justify-center shadow-md animate-pulse delay-1000">
+                                        <div class="w-2 h-2 bg-primary rounded-full"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-secondary/50 rounded-2xl p-4 text-center">
+                                <p class="text-sm text-secondary-foreground mb-2">💬 "How can I help with your healthcare today?"</p>
+                                <div class="w-full h-2 bg-primary/20 rounded-full">
+                                    <div class="w-3/4 h-2 bg-primary rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+
+<!-- Auth Page -->
+<div id="auth-page" class="min-h-screen hidden flex flex-col items-center justify-center p-4">
+    <button id="back-btn" class="mb-6 text-muted-foreground">← Back to Home</button>
+
+      <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="bg-red-500 text-white p-4 rounded-lg mb-4">
+                    <ul>
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+    <form id="auth-form" class="space-y-4 bg-white p-6 rounded-xl shadow-lg w-full max-w-md" method="POST" action="/">
+        <h2 class="text-2xl font-semibold" id="auth-title">Welcome</h2>
+        <p class="text-muted-foreground" id="auth-subtitle">Sign in to your health companion</p>
+
+        <!-- Login Method for Patients -->
+        <div id="login-method-section" class="space-y-2">
+            <label>Login Method</label>
+            <div class="grid grid-cols-2 gap-2">
+                <button type="button" id="bruhims-tab" class="bg-primary text-white rounded-md">Bru-HIMS</button>
+                <button type="button" id="icnumber-tab" class="rounded-md">IC Number</button>
+            </div>
+        </div>
+
+        <!-- User ID -->
+        <div class="space-y-2">
+            <label id="user-id-label">Bru-HIMS</label>
+            <input id="userId" name="userId" type="text" placeholder="Enter your Bru-HIMS number" required
+                class="w-full h-12 border rounded-md px-3">
+            <input type="hidden" id="patientIdType" name="patientIdType" value="bruhims">
+        </div>
+
+        <!-- Password -->
+        <div class="space-y-2">
+            <label>Password</label>
+            <input id="password" name="password" type="password" placeholder="Enter your password" required
+                class="w-full h-12 border rounded-md px-3">
+        </div>
+
+        <!-- Hidden field to detect patient/doctor -->
+        <input type="hidden" id="loginType" name="loginType" value="patient">
+
+        <button type="submit" class="w-full h-12 bg-primary text-white rounded-md">Sign In</button>
+    </form>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const welcomePage = document.getElementById('welcome-page');
+    const authPage = document.getElementById('auth-page');
+    const loginBtns = document.querySelectorAll('#login-patient-btn, #login-doctor-btn');
+    const backBtn = document.getElementById('back-btn');
+
+    const authTitle = document.getElementById('auth-title');
+    const authSubtitle = document.getElementById('auth-subtitle');
+    const loginMethodSection = document.getElementById('login-method-section');
+    const userIdLabel = document.getElementById('user-id-label');
+    const patientIdType = document.getElementById('patientIdType');
+    const loginType = document.getElementById('loginType');
+    const userIdInput = document.getElementById('userId');
+
+    const bruhimsTab = document.getElementById('bruhims-tab');
+    const icnumberTab = document.getElementById('icnumber-tab');
+
+    function activateBruhims() {
+        bruhimsTab.classList.add('bg-primary','text-white');
+        icnumberTab.classList.remove('bg-primary','text-white');
+        userIdLabel.textContent = 'Bru-HIMS';
+        userIdInput.placeholder = 'Enter your Bru-HIMS number';
+        patientIdType.value = 'bruhims';
+    }
+
+    loginBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            welcomePage.classList.add('hidden');
+            authPage.classList.remove('hidden');
+
+            if (btn.id === 'login-patient-btn') {
+                authTitle.textContent = 'Welcome Patient';
+                authSubtitle.textContent = 'Sign in to manage your appointments & reminders';
+                loginMethodSection.classList.remove('hidden');
+                loginType.value = 'patient';
+
+                // Reset to Bru-HIMS tab by default
+                activateBruhims();
+
+                // Enable toggle
+                bruhimsTab.disabled = false;
+                icnumberTab.disabled = false;
+                bruhimsTab.classList.remove('opacity-50', 'cursor-not-allowed');
+                icnumberTab.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                authTitle.textContent = 'Welcome Doctor';
+                authSubtitle.textContent = 'Sign in to manage your patients & schedules';
+                loginMethodSection.classList.add('hidden');
+                userIdLabel.textContent = 'Doctor ID';
+                userIdInput.placeholder = 'Enter your Doctor ID';
+                loginType.value = 'doctor';
+
+                // Disable toggle
+                bruhimsTab.disabled = true;
+                icnumberTab.disabled = true;
+                bruhimsTab.classList.add('opacity-50', 'cursor-not-allowed');
+                icnumberTab.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        });
+    });
+
+    bruhimsTab.addEventListener('click', function() {
+        if (this.disabled) return;
+        activateBruhims();
+    });
+
+    icnumberTab.addEventListener('click', function() {
+        if (this.disabled) return;
+        this.classList.add('bg-primary','text-white');
+        bruhimsTab.classList.remove('bg-primary','text-white');
+        userIdLabel.textContent = 'IC Number';
+        userIdInput.placeholder = 'Enter your IC number';
+        patientIdType.value = 'ic';
+    });
+
+    backBtn.addEventListener('click', function() {
+        authPage.classList.add('hidden');
+        welcomePage.classList.remove('hidden');
+
+        // Reset toggle back to Bru-HIMS when returning
+        activateBruhims();
+    });
+});
+</script>
+
+
+</body>
+</html>

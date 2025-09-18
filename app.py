@@ -84,37 +84,203 @@ def get_user_appointments(username):
     except Exception as e:
         return f"Error fetching appointments: {str(e)}"
 
+# @app.route('/', methods=['GET', 'POST'])
+# def login():
+#     if 'user' in session:
+#         return redirect(url_for('main'))
+
+#     if request.method == 'POST':
+#         user_id = request.form['userId']
+#         password = request.form['password']
+#         login_type = request.form['loginType']
+
+#         cur = conn.cursor()
+#         result = None
+
+#         if login_type == 'patient':
+#             patient_id_type = request.form['patientIdType']
+#             if patient_id_type == 'bruhims':
+#                 cur.execute("SELECT bruhims, password FROM users WHERE bruhims=%s AND password=%s", (user_id, password))
+#             else:
+#                 cur.execute("SELECT ic, password FROM users WHERE ic=%s AND password=%s", (user_id, password))
+#             result = cur.fetchone()
+
+#         elif login_type == 'doctor':
+#             cur.execute("SELECT id, name, password FROM doctor WHERE id=%s AND password=%s", (user_id, password))
+#             result = cur.fetchone()
+
+#         cur.close()
+
+#         if result:
+#             session['user'] = result[0]
+#             session['name'] = result[1]
+#             session['type'] = login_type
+#             # return redirect(url_for('main'))
+#               # Redirect based on type
+#             if login_type == 'patient':
+#                 return redirect(url_for('main'))
+#             else:
+#                 return redirect(url_for('doctor_dashboard'))
+#         else:
+#             flash('Invalid credentials. Please try again.')
+            
+
+#     return render_template('login.html')
+
 @app.route('/', methods=['GET', 'POST'])
 def login():
-
     if 'user' in session:
         return redirect(url_for('main'))
-       
+
+    login_type = 'patient'  # Default to 'patient' if not set
+
     if request.method == 'POST':
-        username = request.form['username']
+        user_id = request.form['userId']
         password = request.form['password']
+        login_type = request.form['loginType']
 
         cur = conn.cursor()
-        cur.execute("SELECT * FROM users WHERE username=%s AND password=%s", (username,password))
-        result = cur.fetchone()
+        result = None
+
+        if login_type == 'patient':
+            patient_id_type = request.form['patientIdType']
+            if patient_id_type == 'bruhims':
+                cur.execute("SELECT bruhims, password FROM users WHERE bruhims=%s AND password=%s", (user_id, password))
+            else:
+                cur.execute("SELECT ic, password FROM users WHERE ic=%s AND password=%s", (user_id, password))
+            result = cur.fetchone()
+
+        elif login_type == 'doctor':
+            cur.execute("SELECT id, name, password FROM doctor WHERE id=%s AND password=%s", (user_id, password))
+            result = cur.fetchone()
+
         cur.close()
-        
+
         if result:
-            session['user'] = username
-            return redirect(url_for('main'))
+            session['user'] = result[0]
+            session['name'] = result[1]
+            session['type'] = login_type
+            # Redirect based on type
+            if login_type == 'patient':
+                return redirect(url_for('main'))
+            else:
+                return redirect(url_for('doctor_dashboard'))
         else:
             flash('Invalid credentials. Please try again.')
-            return redirect(url_for('login'))
-           
-    return render_template('login_page.html')
+            # Stay on the login page if login fails, passing the login_type to render the correct form
+            return render_template('login.html', login_type=login_type)
+
+    return render_template('login.html', login_type=login_type)
+
+# @app.route('/doctor', methods=['GET', 'POST'])
+# def doctor_dashboard():
+#     if 'user' not in session or session.get('type') != 'doctor':
+#         flash("Please log in as a doctor to access this page.")
+#         return redirect(url_for('login'))
+
+#     doctor_id = session['user']
+#     cur = conn.cursor()
+
+#     # Handle approval action (approve/reject)
+#     if request.method == 'POST':
+#         appointment_id = request.form.get('appointment_id')
+#         action = request.form.get('action')  # 'approve' or 'reject'
+        
+#         if action == 'approve':
+#             # Update appointment to 'approved'
+#             cur.execute("UPDATE appointment SET status='Approved' WHERE id=%s AND doctor_id=%s", (appointment_id, doctor_id))
+#         elif action == 'reject':
+#             # Update appointment to 'rejected'
+#             cur.execute("UPDATE appointment SET status='Rejected' WHERE id=%s AND doctor_id=%s", (appointment_id, doctor_id))
+
+#         elif action == 'pending':
+#             # Update appointment to 'pending'
+#             cur.execute("UPDATE appointment SET status='Pending' WHERE id=%s AND doctor_id=%s", (appointment_id, doctor_id))
+
+#         elif action == 'complete':
+#             # Update appointment to 'complete'
+#             cur.execute("UPDATE appointment SET status='Completed' WHERE id=%s AND doctor_id=%s", (appointment_id, doctor_id))
+        
+#         conn.commit()
+
+#     # Fetch appointments for this doctor
+#     cur.execute("""
+#         SELECT a.id, u.username, u.bruhims, u.ic, a.date, a.time, a.status
+#         FROM appointment a
+#         JOIN users u ON a.user_id = u.id
+#         WHERE a.doctor_id = %s
+#         ORDER BY a.date ASC, a.time ASC
+#     """, (doctor_id,))
+#     appointments = cur.fetchall()
+#     cur.close()
+
+#     return render_template('doctor.html', appointments=appointments)
+
+@app.route('/doctor', methods=['GET', 'POST'])
+def doctor_dashboard():
+    if 'user' not in session or session.get('type') != 'doctor':
+        flash("Please log in as a doctor to access this page.")
+        return redirect(url_for('login'))
+
+    doctor_id = session['user']
+    cur = conn.cursor()
+
+    medications = None  # default to None so template can check
+
+    # If POST, it can be either appointment action OR search
+    if request.method == 'POST':
+        appointment_id = request.form.get('appointment_id')
+        action = request.form.get('action')  
+        search_query = request.form.get('search_query')
+
+        if appointment_id and action:
+            # Handle appointment updates
+            if action == 'approve':
+                cur.execute("UPDATE appointment SET status='Approved' WHERE id=%s AND doctor_id=%s", (appointment_id, doctor_id))
+            elif action == 'reject':
+                cur.execute("UPDATE appointment SET status='Rejected' WHERE id=%s AND doctor_id=%s", (appointment_id, doctor_id))
+            elif action == 'pending':
+                cur.execute("UPDATE appointment SET status='Pending' WHERE id=%s AND doctor_id=%s", (appointment_id, doctor_id))
+            elif action == 'complete':
+                cur.execute("UPDATE appointment SET status='Completed' WHERE id=%s AND doctor_id=%s", (appointment_id, doctor_id))
+
+            conn.commit()
+
+        elif search_query:
+            # Handle medication search
+            cur.execute("""
+                 SELECT u.username, u.bruhims, u.ic, m.medicine_name, m.typical_dose, m.times_per_day, m.reminder_times
+                    FROM user_medications m
+                    JOIN users u ON m.user_id = u.id
+                    WHERE u.bruhims = %s OR u.ic = %s
+            """, (search_query, search_query))
+            medications = cur.fetchall()
+
+    # Fetch appointments for this doctor
+    cur.execute("""
+        SELECT a.id, u.username, u.bruhims, u.ic, a.date, a.time, a.status
+        FROM appointment a
+        JOIN users u ON a.user_id = u.id
+        WHERE a.doctor_id = %s
+        ORDER BY a.date ASC, a.time ASC
+    """, (doctor_id,))
+    appointments = cur.fetchall()
+    cur.close()
+
+    return render_template('doctor.html', appointments=appointments, medications=medications)
 
 @app.route('/main')
 def main():
-    if 'user' in session:
-        return render_template('main_page.html', username=session['user'])
-    else:
-        flash('You must login first!')
+    # if 'user' not in session or session.get('type') != 'patient':
+    #     return render_template('main_page.html', username=session['user'])
+    # else:
+    #     flash('You must login first!')
+    #     return redirect(url_for('login'))
+    if 'user' not in session or session.get('type') != 'patient':
+        flash("Please log in as a patient to access this page.")
         return redirect(url_for('login'))
+
+    return render_template('main_page.html',username=session['user'])
     
 @app.route('/cancel_booking', methods=['POST'])
 def cancel_booking():
